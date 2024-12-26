@@ -7,34 +7,36 @@ public class HotelReservation
 {
     private List<Hotel> hotels;
 
-    public HotelReservation()
-    {
+    public HotelReservation() {
         hotels = new ArrayList<>();
 
     }
 
-    public void addHotel(String name , int weekDayRate , int weekendDayRate)
-    {
-        Hotel hotel = new Hotel(name,weekDayRate,weekendDayRate);
+    public void addHotel(String name , int weekDayRate , int weekendDayRate, int rating) {
+        Hotel hotel = new Hotel(name,weekDayRate,weekendDayRate,rating);
         hotels.add(hotel);
-
     }
 
-    public List<Hotel> getHotels()
-    {
+    public List<Hotel> getHotels() {
         return hotels;
     }
 
-    public static void main( String[] args )
-    {
+    public void displayHotels() {
+        hotels.forEach(System.out::println);
+    }
+
+
+    public static void main( String[] args ) {
         System.out.println( "Welcome to Hotel Reservation Program" );
 
         HotelReservation reservation = new HotelReservation();
+        reservation.addHotel("Lakewood", 110, 90,3);
+        reservation.addHotel("Bridgewood", 160, 60,4);
+        reservation.addHotel("Ridgewood", 220, 150,5);
 
-        reservation.addHotel("Lakewood", 110, 90);
-        reservation.addHotel("Bridgewood", 160, 60);
-        reservation.addHotel("Ridgewood", 220, 150);
-
-        System.out.println("Hotels added: " + reservation.getHotels());
+        System.out.println("Hotels and their rates:");
+        reservation.displayHotels();
     }
+
+
 }
