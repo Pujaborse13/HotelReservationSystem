@@ -17,18 +17,20 @@ public class HotelReservation {
         hotels.add(hotel);
     }
 
-    public String findCheapestBestRatedHotel(String[] dateRange) {
+    public String findBestRatedHotel(String[] dateRange) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMMuuuu");
-        int[] dayCounts = calculateDayCounts(dateRange, formatter);
 
-        return hotels.stream()
-                .map(hotel -> new HotelRate(hotel, (hotel.getWeekdayRate() * dayCounts[0]) + (hotel.getWeekendRate() * dayCounts[1])))
-                .sorted(Comparator.comparing(HotelRate::getTotalRate).thenComparing((h1, h2) -> Integer.compare(h2.getHotel().getRating(), h1.getHotel().getRating())))
-                .findFirst()
-                .map(hotelRate -> hotelRate.getHotel().getName() +
-                        ", Rating: " + hotelRate.getHotel().getRating() +
-                        " and Total Rates: $" + hotelRate.getTotalRate())
-                .orElse("No hotels available");
+        Hotel bestRatedHotel = hotels.stream()
+                .max((h1, h2) -> Integer.compare(h1.getRating(), h2.getRating()))
+                .orElseThrow(() -> new RuntimeException("No hotels available"));
+
+        int[] dayCounts = calculateDayCounts(dateRange, formatter);
+        int totalCost = (bestRatedHotel.getWeekdayRate() * dayCounts[0]) +
+                (bestRatedHotel.getWeekendRate() * dayCounts[1]);
+
+        return bestRatedHotel.getName() +
+                ", Rating: " + bestRatedHotel.getRating() +
+                " and Total Rates: $" + totalCost;
     }
 
     private int[] calculateDayCounts(String[] dateRange, DateTimeFormatter formatter) {
@@ -45,6 +47,7 @@ public class HotelReservation {
             }
         }
         return new int[]{weekdayCount, weekendCount};
+
     }
 
 
@@ -66,7 +69,7 @@ public class HotelReservation {
         reservation.addHotel("Ridgewood", 220, 150, 5);
 
         String[] dateRange = {"11Sep2020", "12Sep2020"};
-        String result = reservation.findCheapestBestRatedHotel(dateRange);
+        String result = reservation.findBestRatedHotel(dateRange);
         System.out.println(result);
     }
 
