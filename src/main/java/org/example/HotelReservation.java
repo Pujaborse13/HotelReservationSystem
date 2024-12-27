@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class HotelReservation {
     private List<Hotel> hotels;
@@ -18,25 +19,31 @@ public class HotelReservation {
         hotels.add(hotel);
     }
 
-    public String findCheapestBestRatedHotel(String[] dateRange, String customerType) throws InvalidCustomerTypeException, InvalidDateFormatException {
+    public String findCheapestBestRatedHotelUsingStreams(String[] dateRange, String customerType) throws InvalidCustomerTypeException, InvalidDateFormatException {
+        // Regex patterns for validation
+        String customerTypeRegex = "Regular|Reward";
+        String dateRegex = "\\d{2}[A-Za-z]{3}\\d{4}";
+
         // Validate customer type
-        if (!customerType.equalsIgnoreCase("Regular") && !customerType.equalsIgnoreCase("Reward")) {
+        if (!Pattern.matches(customerTypeRegex, customerType)) {
             throw new InvalidCustomerTypeException("Invalid customer type! Please use 'Regular' or 'Reward'.");
         }
 
         // Validate date format
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMMuuuu");
-        try {
-            for (String date : dateRange) {
-                LocalDate.parse(date, formatter);
+        for (String date : dateRange) {
+            if (!Pattern.matches(dateRegex, date)) {
+                throw new InvalidDateFormatException("Invalid date format! Please use 'ddMMMyyyy' (e.g., 11Sep2020).");
             }
-        } catch (DateTimeParseException e) {
-            throw new InvalidDateFormatException("Invalid date format! Please use 'ddMMMyyyy' (e.g., 11Sep2020).");
+            try {
+                LocalDate.parse(date, formatter);
+            } catch (DateTimeParseException e) {
+                throw new InvalidDateFormatException("Invalid date format! Please use 'ddMMMyyyy' (e.g., 11Sep2020).");
+            }
         }
 
         boolean isRewardCustomer = customerType.equalsIgnoreCase("Reward");
 
-        // Find cheapest and best-rated hotel
         return hotels.stream()
                 .map(hotel -> {
                     int[] dayCounts = calculateDayCounts(dateRange, formatter);
