@@ -5,32 +5,38 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public class HotelReservation {
+public class HotelReservation
+{
     private List<Hotel> hotels;
 
     public HotelReservation() {
         hotels = new ArrayList<>();
     }
 
-    public void addHotel(String name , int weekDayRate , int weekendDayRate, int rating) {
-        Hotel hotel = new Hotel(name,weekDayRate,weekendDayRate,rating);
+    public void addHotel(String name, int weekdayRateRegular, int weekendRateRegular, int weekdayRateReward, int weekendRateReward, int rating) {
+        Hotel hotel = new Hotel(name, weekdayRateRegular, weekendRateRegular, weekdayRateReward, weekendRateReward, rating);
         hotels.add(hotel);
     }
 
-    public String findBestRatedHotel(String[] dateRange) {
+    public String findCheapestHotel(String[] dateRange, boolean isRewardCustomer) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMMuuuu");
 
-        Hotel bestRatedHotel = hotels.stream()
-                .max((h1, h2) -> Integer.compare(h1.getRating(), h2.getRating()))
-                .orElseThrow(() -> new RuntimeException("No hotels available"));
-
-        int[] dayCounts = calculateDayCounts(dateRange, formatter);
-        int totalCost = (bestRatedHotel.getWeekdayRate() * dayCounts[0]) +
-                (bestRatedHotel.getWeekendRate() * dayCounts[1]);
-
-        return bestRatedHotel.getName() +
-                ", Rating: " + bestRatedHotel.getRating() +
-                " and Total Rates: $" + totalCost;
+        return hotels.stream()
+                .map(hotel -> {
+                    int[] dayCounts = calculateDayCounts(dateRange, formatter);
+                    int totalRate = (hotel.getWeekdayRate(isRewardCustomer) * dayCounts[0]) +
+                            (hotel.getWeekendRate(isRewardCustomer) * dayCounts[1]);
+                    return new HotelRate(hotel, totalRate);
+                })
+                .sorted((h1, h2) -> {
+                    int rateComparison = Integer.compare(h1.getTotalRate(), h2.getTotalRate());
+                    return rateComparison != 0 ? rateComparison : Integer.compare(h2.getHotel().getRating(), h1.getHotel().getRating());
+                })
+                .findFirst()
+                .map(hotelRate -> hotelRate.getHotel().getName() +
+                        ", Rating: " + hotelRate.getHotel().getRating() +
+                        " and Total Rates: $" + hotelRate.getTotalRate())
+                .orElse("No hotels available");
     }
 
     private int[] calculateDayCounts(String[] dateRange, DateTimeFormatter formatter) {
@@ -47,22 +53,21 @@ public class HotelReservation {
             }
         }
         return new int[]{weekdayCount, weekendCount};
-
     }
 
     public static void main( String[] args ) {
         System.out.println("Welcome to Hotel Reservation Program");
 
         HotelReservation reservation = new HotelReservation();
-        reservation.addHotel("Lakewood", 110, 90, 3);
-        reservation.addHotel("Bridgewood", 160, 60, 4);
-        reservation.addHotel("Ridgewood", 220, 150, 5);
+        reservation.addHotel("Lakewood", 110, 90, 80, 80, 3);
+        reservation.addHotel("Bridgewood",  150, 50, 110, 50, 4);
+        reservation.addHotel("Ridgewood",  220, 150, 100, 40, 5);
 
         String[] dateRange = {"11Sep2020", "12Sep2020"};
-        String result = reservation.findBestRatedHotel(dateRange);
+        boolean isRewardCustomer = true;
+        String result = reservation.findCheapestHotel(dateRange, isRewardCustomer);
         System.out.println(result);
     }
-
 
 }
 

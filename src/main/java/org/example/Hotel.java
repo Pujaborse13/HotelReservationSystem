@@ -3,15 +3,18 @@ package org.example;
 public class Hotel
 {
     private String name;
-    private int weekdayRate;
-    private int weekendRate;
+    private int weekdayRateRegular;
+    private int weekendRateRegular;
+    private int weekdayRateReward;
+    private int weekendRateReward;
     private int rating;
 
-
-    public Hotel(String name, int weekdayRate, int weekendRate , int rating) {
+    public Hotel(String name, int weekdayRateRegular, int weekendRateRegular, int weekdayRateReward, int weekendRateReward, int rating) {
         this.name = name;
-        this.weekdayRate = weekdayRate;
-        this.weekendRate = weekendRate;
+        this.weekdayRateRegular = weekdayRateRegular;
+        this.weekendRateRegular = weekendRateRegular;
+        this.weekdayRateReward = weekdayRateReward;
+        this.weekendRateReward = weekendRateReward;
         this.rating = rating;
     }
 
@@ -19,25 +22,15 @@ public class Hotel
         return name;
     }
 
-    public int getWeekdayRate() {
-        return weekdayRate;
+    public int getWeekdayRate(boolean isRewardCustomer) {
+        return isRewardCustomer ? weekdayRateReward : weekdayRateRegular;
     }
 
-    public int getWeekendRate() {
-        return weekendRate;
+    public int getWeekendRate(boolean isRewardCustomer) {
+        return isRewardCustomer ? weekendRateReward : weekendRateRegular;
     }
 
-    public int getRating(){
-        return  rating;
+    public int getRating() {
+        return rating;
     }
-
-    @Override
-    public String toString() {
-        return "Hotel{ name='" + name +
-                "', weekdayRate=" + weekdayRate +
-                ", weekendRate=" + weekendRate +
-                ", rating=" + rating + '}';
-
-    }
-
 }
