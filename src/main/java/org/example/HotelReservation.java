@@ -50,16 +50,6 @@ public class HotelReservation {
 
     }
 
-
-    public List<Hotel> getHotels() {
-        return hotels;
-    }
-
-    public void displayHotels() {
-        hotels.forEach(System.out::println);
-    }
-
-
     public static void main( String[] args ) {
         System.out.println("Welcome to Hotel Reservation Program");
 
