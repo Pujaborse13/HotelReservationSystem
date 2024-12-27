@@ -3,10 +3,10 @@ package org.example;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
-public class HotelReservation
-{
+public class HotelReservation {
     private List<Hotel> hotels;
 
     public HotelReservation() {
@@ -18,9 +18,25 @@ public class HotelReservation
         hotels.add(hotel);
     }
 
-    public String findCheapestHotel(String[] dateRange, boolean isRewardCustomer) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMMuuuu");
+    public String findCheapestBestRatedHotel(String[] dateRange, String customerType) throws InvalidCustomerTypeException, InvalidDateFormatException {
+        // Validate customer type
+        if (!customerType.equalsIgnoreCase("Regular") && !customerType.equalsIgnoreCase("Reward")) {
+            throw new InvalidCustomerTypeException("Invalid customer type! Please use 'Regular' or 'Reward'.");
+        }
 
+        // Validate date format
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMMuuuu");
+        try {
+            for (String date : dateRange) {
+                LocalDate.parse(date, formatter);
+            }
+        } catch (DateTimeParseException e) {
+            throw new InvalidDateFormatException("Invalid date format! Please use 'ddMMMyyyy' (e.g., 11Sep2020).");
+        }
+
+        boolean isRewardCustomer = customerType.equalsIgnoreCase("Reward");
+
+        // Find cheapest and best-rated hotel
         return hotels.stream()
                 .map(hotel -> {
                     int[] dayCounts = calculateDayCounts(dateRange, formatter);
@@ -54,6 +70,8 @@ public class HotelReservation
         }
         return new int[]{weekdayCount, weekendCount};
     }
+}
+/*
 
     public static void main( String[] args ) {
         System.out.println("Welcome to Hotel Reservation Program");
@@ -65,12 +83,12 @@ public class HotelReservation
 
         String[] dateRange = {"11Sep2020", "12Sep2020"};
         boolean isRewardCustomer = true;
-        String result = reservation.findCheapestHotel(dateRange, isRewardCustomer);
+        String result = reservation.findCheapestBestRatedHotel(dateRange, isRewardCustomer);
         System.out.println(result);
     }
 
 }
-
+*/
 
 class HotelRate {
     private Hotel hotel;
